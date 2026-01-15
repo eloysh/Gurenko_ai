@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gurenko Mini App</title>
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --card: #14161d;
+        --text: #e7e9ee;
+        --muted: #9aa3b2;
+        --border: #2a2f3a;
+        --radius: 18px;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+      }
+      @media (max-width: 880px) {
+        .row { grid-template-columns: 1fr; }
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+      }
+      .title {
+        font-weight: 800;
+        font-size: 18px;
+        margin: 0 0 10px;
+      }
+      .muted { color: var(--muted); }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: #1b1f2a;
+        color: var(--text);
+        cursor: pointer;
+        user-select: none;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-primary {
+        background: #2a74ff;
+        border-color: #2a74ff;
+      }
+      .btn-ghost {
+        background: transparent;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      @media (max-width: 560px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+      input, textarea {
+        width: 100%;
+        background: #0f1117;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+        outline: none;
+      }
+      textarea { min-height: 110px; resize: vertical; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #0f1117;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+      .promptItem {
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: #0f1117;
+      }
+      .promptItem h4 {
+        margin: 0 0 6px;
+        font-size: 15px;
+      }
+      .promptItem pre {
+        margin: 0;
+        white-space: pre-wrap;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .kpi {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .img {
+        width: 100%;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        margin-top: 12px;
+      }
+      .hr {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0;
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        background: #0f1117;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px 12px;
+        max-width: 92vw;
+        color: var(--text);
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <div class="title">Gurenko Mini App</div>
+          <div class="muted" id="hello">Загрузка…</div>
+        </div>
+        <div class="kpi">
+          <span class="pill" id="creditsPill">⭐️ Генерации: …</span>
+          <span class="pill" id="spentPill">💫 Stars: …</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="title">🎨 Генерация</div>
+          <div class="muted">1 генерация = 1 кредит. Покупка — за Telegram Stars.</div>
+          <div style="margin-top: 12px;">
+            <textarea id="prompt" placeholder="Вставь свой промт сюда…"></textarea>
+          </div>
+          <div style="margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="genBtn">⚡ Сгенерировать</button>
+            <button class="btn btn-ghost" id="clearBtn">Очистить</button>
+            <button class="btn" id="shareBotBtn">🔗 Поделиться ботом</button>
+            <button class="btn" id="statusBtn">📌 В статус</button>
+          </div>
+
+          <img id="preview" class="img" style="display:none" alt="result" />
+
+          <div class="hr"></div>
+          <div class="title">📚 Свежие промты из канала</div>
+          <div class="list" id="prompts"></div>
+        </div>
+
+        <div class="card">
+          <div class="title">👤 Профиль</div>
+          <div class="muted" id="profileText">Загрузка…</div>
+          <div class="hr"></div>
+          <div class="title">💫 Купить генерации</div>
+          <div class="grid" id="packs"></div>
+          <div class="muted" style="margin-top: 10px;">
+            Оплата идет через *Telegram Stars* (валюта XTR). После оплаты кредиты начислятся в профиль.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      const tg = window.Telegram?.WebApp;
+      const initData = tg?.initData || '';
+      const headers = { 'Content-Type': 'application/json', 'X-Telegram-InitData': initData };
+
+      const el = {
+        hello: document.getElementById('hello'),
+        creditsPill: document.getElementById('creditsPill'),
+        spentPill: document.getElementById('spentPill'),
+        prompt: document.getElementById('prompt'),
+        genBtn: document.getElementById('genBtn'),
+        clearBtn: document.getElementById('clearBtn'),
+        shareBotBtn: document.getElementById('shareBotBtn'),
+        statusBtn: document.getElementById('statusBtn'),
+        preview: document.getElementById('preview'),
+        prompts: document.getElementById('prompts'),
+        profileText: document.getElementById('profileText'),
+        packs: document.getElementById('packs'),
+        toast: document.getElementById('toast'),
+      };
+
+      let state = {
+        user: null,
+        deepLink: null,
+        lastUrl: null,
+      };
+
+      function toast(msg) {
+        el.toast.textContent = msg;
+        el.toast.style.display = 'block';
+        setTimeout(() => (el.toast.style.display = 'none'), 2200);
+      }
+
+      function renderProfile() {
+        if (!state.user) return;
+        const name = [state.user.first_name, state.user.last_name].filter(Boolean).join(' ') || 'Пользователь';
+        el.hello.textContent = `Привет, ${name} 👋`;
+        el.creditsPill.textContent = `⭐️ Генерации: ${state.user.credits}`;
+        el.spentPill.textContent = `💫 Stars: ${state.user.total_spent_stars || 0}`;
+
+        const username = state.user.username ? '@' + state.user.username : '(без ника)';
+        el.profileText.innerHTML = `
+          <div><b>${username}</b></div>
+          <div class="muted" style="margin-top:6px;">ID: <code>${state.user.user_id}</code></div>
+          ${state.deepLink ? `<div class="muted" style="margin-top:10px;">Твоя ссылка: <br><span style="word-break:break-all;">${state.deepLink}</span></div>` : ''}
+        `;
+
+        el.statusBtn.disabled = !state.lastUrl;
+      }
+
+      function makeShareUrl() {
+        const deep = state.deepLink || '';
+        const text = encodeURIComponent('Держи бот с промтами и генерацией 🔥');
+        const url = encodeURIComponent(deep);
+        return `https://t.me/share/url?url=${url}&text=${text}`;
+      }
+
+      async function apiGet(path) {
+        const r = await fetch(path, { headers });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw Object.assign(new Error(j?.error || 'error'), { status: r.status, data: j });
+        return j;
+      }
+
+      async function apiPost(path, body) {
+        const r = await fetch(path, { method: 'POST', headers, body: JSON.stringify(body || {}) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw Object.assign(new Error(j?.error || 'error'), { status: r.status, data: j });
+        return j;
+      }
+
+      async function loadMe() {
+        const me = await apiGet('/api/me');
+        state.user = me.user;
+        state.deepLink = me.deepLink;
+        state.lastUrl = me.user?.last_result_url || null;
+        renderProfile();
+      }
+
+      async function loadPrompts() {
+        const data = await apiGet('/api/prompts');
+        el.prompts.innerHTML = '';
+        (data.items || []).slice(0, 12).forEach((p) => {
+          const item = document.createElement('div');
+          item.className = 'promptItem';
+          const title = p.title || 'Промт';
+          item.innerHTML = `
+            <h4>${title}</h4>
+            <pre>${(p.text || '').slice(0, 500)}${(p.text || '').length > 500 ? '…' : ''}</pre>
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" data-use="${p.id}">Использовать</button>
+              <button class="btn btn-ghost" data-copy="${p.id}">Копировать</button>
+            </div>
+          `;
+          item.querySelector('[data-use]').onclick = () => {
+            el.prompt.value = p.text || '';
+            toast('Промт подставлен ✅');
+          };
+          item.querySelector('[data-copy]').onclick = async () => {
+            try {
+              await navigator.clipboard.writeText(p.text || '');
+              toast('Скопировано ✅');
+            } catch {
+              toast('Не удалось скопировать 🙈');
+            }
+          };
+          el.prompts.appendChild(item);
+        });
+      }
+
+      function renderPacks() {
+        const packs = [
+          { id: 'p10', title: '10 генераций', stars: 49 },
+          { id: 'p30', title: '30 генераций', stars: 129 },
+          { id: 'p100', title: '100 генераций', stars: 399 },
+        ];
+        el.packs.innerHTML = '';
+        packs.forEach((p) => {
+          const b = document.createElement('button');
+          b.className = 'btn';
+          b.textContent = `${p.title}\n${p.stars}⭐️`;
+          b.style.whiteSpace = 'pre-line';
+          b.onclick = () => buyPack(p.id);
+          el.packs.appendChild(b);
+        });
+      }
+
+      async function buyPack(packId) {
+        try {
+          el.genBtn.disabled = true;
+          const { url } = await apiPost('/api/invoice', { pack_id: packId });
+          if (!tg?.openInvoice) {
+            toast('Открой Mini App в Telegram 🙏');
+            return;
+          }
+          tg.openInvoice(url, async (status) => {
+            // status: 'paid' | 'cancelled' | 'failed' | 'pending'
+            if (status === 'paid') {
+              toast('Оплата успешна ✅');
+              await loadMe();
+            } else {
+              toast('Оплата не завершена');
+            }
+          });
+        } catch (e) {
+          if (e.status === 403 && e.data?.error === 'not_subscribed') {
+            toast('Сначала подпишись на канал 🙏');
+          } else {
+            toast('Ошибка оплаты 🙈');
+          }
+        } finally {
+          el.genBtn.disabled = false;
+        }
+      }
+
+      async function generate() {
+        const prompt = (el.prompt.value || '').trim();
+        if (!prompt) {
+          toast('Напиши промт 😅');
+          return;
+        }
+
+        try {
+          el.genBtn.disabled = true;
+          toast('Генерирую… ⏳');
+
+          const res = await apiPost('/api/generate', {
+            prompt,
+            aspect_ratio: 'social_story_9_16',
+          });
+
+          if (res.url) {
+            el.preview.src = res.url;
+            el.preview.style.display = 'block';
+            state.lastUrl = res.url;
+            el.statusBtn.disabled = false;
+            await loadMe();
+            toast('Готово ✅');
+          } else {
+            toast('Запрос принят ✅ Обнови позже');
+            await loadMe();
+          }
+        } catch (e) {
+          if (e.status === 402) {
+            toast('Нет генераций 😌 Купи пакет');
+          } else {
+            toast('Ошибка генерации 🙈');
+          }
+          await loadMe().catch(() => {});
+        } finally {
+          el.genBtn.disabled = false;
+        }
+      }
+
+      function shareBot() {
+        const url = makeShareUrl();
+        if (tg?.openTelegramLink) {
+          tg.openTelegramLink(url);
+        } else {
+          window.open(url, '_blank');
+        }
+      }
+
+      async function shareToStatus() {
+        if (!state.lastUrl) {
+          toast('Сначала сделай генерацию 🙂');
+          return;
+        }
+        if (!tg?.shareToStory) {
+          toast('Эта функция доступна в Telegram (Stories)');
+          return;
+        }
+        try {
+          tg.shareToStory(state.lastUrl, {
+            text: 'Сделано в AI ✨',
+          });
+        } catch {
+          toast('Не удалось открыть сторис 🙈');
+        }
+      }
+
+      el.genBtn.onclick = generate;
+      el.clearBtn.onclick = () => (el.prompt.value = '');
+      el.shareBotBtn.onclick = shareBot;
+      el.statusBtn.onclick = shareToStatus;
+
+      (async function init() {
+        try {
+          if (tg) {
+            tg.expand();
+            tg.ready();
+          }
+          renderPacks();
+          await loadMe();
+          await loadPrompts();
+        } catch (e) {
+          toast('Не могу загрузить данные 🙈');
+        }
+      })();
+    </script>
+  </body>
+</html>
