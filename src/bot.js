@@ -148,18 +148,35 @@ export function createBot({
     );
   });
 
-  bot.action('check_sub', async (ctx) => {
-    await ctx.answerCbQuery();
-    try {
-      const ok = await isSubscribed(ctx.from.id);
-      if (!ok) return ctx.reply('Пока не вижу подписку 😌 Подпишись и нажми ещё раз.', gateKeyboard());
-      return showMenu(ctx);
-    } catch (e) {
-      return ctx.reply(
-        'Ошибка проверки подписки.\nПроверь, что бот админ в канале и канал указан правильно.'
-      );
+  bot.action('profile', async (ctx) => {
+  const userId = ctx.from.id;
+  const username = ctx.from.username || "без_ника";
+
+  // тут у тебя обычно идут запросы в базу:
+  const credits = 2; // замени на твои реальные данные из DB
+  const spent = 0;   // замени на твои реальные данные из DB
+
+  const refLink = `https://t.me/${process.env.BOT_USERNAME}?start=ref_54vr60`;
+
+  const text =
+    `👤 <b>Профиль</b>\n\n` +
+    `• ID: <code>${userId}</code>\n` +
+    `• @${username}\n` +
+    `• Генерации: <b>${credits}</b>\n` +
+    `• Потрачено Stars: <b>${spent}</b>\n\n` +
+    `🔗 Твоя ссылка для друзей:\n` +
+    `<code>${refLink}</code>`;
+
+  // Если раньше было editMessageText — лучше оставить editMessageText
+  await ctx.editMessageText(text, {
+    parse_mode: "HTML",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "⬅️ Назад", callback_data: "menu" }]
+      ]
     }
   });
+});
 
   bot.action('help', async (ctx) => {
     await ctx.answerCbQuery();
