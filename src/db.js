@@ -103,8 +103,8 @@ export function initDb(dbPath = './data.sqlite') {
   );
 
   const listPrompts = db.prepare(
-    'SELECT id, COALESCE(title, "") as title, text, created_at FROM prompts ORDER BY id DESC LIMIT ?'
-  );
+    "SELECT id, COALESCE(title, '') as title, text, created_at FROM prompts ORDER BY id DESC LIMIT ?"
+
 
   const insertGen = db.prepare(
     'INSERT INTO generations(user_id, prompt, aspect_ratio, task_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?)'
