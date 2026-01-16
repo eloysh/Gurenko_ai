@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Kristina AI Agent</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="stylesheet" href="/miniapp-assets/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <div class="logo">KA</div>
+        <div class="brandText">
+          <div class="title">Kristina AI Agent</div>
+          <div class="subtitle">Промты • Генерации • Stars</div>
+        </div>
+      </div>
+
+      <div class="pill" id="creditsPill">…</div>
+    </header>
+
+    <main class="main">
+      <section class="card hero">
+        <div class="heroTop">
+          <div class="heroText">
+            <div class="heroTitle">Создай картинку за 10 секунд ✨</div>
+            <div class="heroDesc">
+              Пиши промт → получай результат. Новые промты автоматически из твоего канала.
+            </div>
+          </div>
+          <button class="btn btnPrimary" id="openShopBtn">⭐️ Купить</button>
+        </div>
+
+        <div class="inputBox">
+          <textarea id="promptInput" rows="3" placeholder="Например: ультра-реалистичный портрет, мягкий свет, fashion editorial, 9:16"></textarea>
+
+          <div class="row">
+            <div class="chips">
+              <button class="chip" data-style="Фотореализм, natural skin texture, cinematic light">Фотореализм</button>
+              <button class="chip" data-style="Fashion editorial, studio lighting, glossy magazine">Fashion</button>
+              <button class="chip" data-style="Cozy kids portrait, soft daylight, warm tones">Детское</button>
+              <button class="chip" data-style="Instagram Reel cover, premium look, portrait 9:16">Reels 9:16</button>
+            </div>
+
+            <select id="ratioSelect" class="select">
+              <option value="social_story_9_16">9:16 (Stories/Reels)</option>
+              <option value="square_1_1">1:1</option>
+              <option value="landscape_16_9">16:9</option>
+            </select>
+          </div>
+
+          <button class="btn btnGlow" id="generateBtn">⚡️ Сгенерировать</button>
+
+          <div class="note" id="statusText"></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="cardTitle">🔥 Топ промты из канала</div>
+          <div class="list" id="promptsList"></div>
+          <button class="btn btnSoft" id="openChannelBtn">📣 Открыть мой канал</button>
+        </div>
+
+        <div class="card">
+          <div class="cardTitle">👤 Профиль</div>
+          <div class="profile" id="profileBox">
+            <div class="profileLine"><span>Имя</span><b id="meName">…</b></div>
+            <div class="profileLine"><span>Баланс</span><b id="meCredits">…</b></div>
+            <div class="profileLine"><span>Stars потрачено</span><b id="meSpent">…</b></div>
+
+            <div class="divider"></div>
+
+            <div class="smallTitle">🔗 Твоя ссылка</div>
+            <div class="copyRow">
+              <input id="refLink" readonly value="…" />
+              <button class="btn btnSmall" id="copyBtn">Копировать</button>
+            </div>
+
+            <div class="row2">
+              <button class="btn btnSoft" id="shareBotBtn">🤖 Поделиться ботом</button>
+              <button class="btn btnSoft" id="shareChannelBtn">📣 Поделиться каналом</button>
+            </div>
+
+            <button class="btn btnStory" id="storyBtn">🎥 В сториз Telegram</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="shopCard">
+        <div class="cardTitle">⭐️ Магазин Stars</div>
+        <div class="packs" id="packs"></div>
+      </section>
+
+      <section class="card">
+        <div class="cardTitle">🕓 История</div>
+        <div class="history" id="historyList"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <button class="tab active" id="tabGen">⚡️ Генерация</button>
+      <button class="tab" id="tabShop">⭐️ Stars</button>
+      <button class="tab" id="tabPrompts">🔥 Промты</button>
+      <button class="tab" id="tabProfile">👤 Профиль</button>
+    </footer>
+  </div>
+
+  <script src="/miniapp-assets/app.js"></script>
+</body>
+</html>
